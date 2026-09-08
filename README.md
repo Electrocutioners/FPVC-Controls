@@ -4,3 +4,5 @@ Control Team
 
 - Bluetooth
 - Sensors
+- Presentation
+- Display
