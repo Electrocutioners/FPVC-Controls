@@ -1,8 +1,15 @@
 # FPVC-Controls
 
-Control Team
 
-- Bluetooth
-- Sensors
-- Presentation
-- Display
+
+## Project Technology
+
+
+
+### Microcontroller
+
+ - STM32G431CBU6
+
+
+### Display 
+
