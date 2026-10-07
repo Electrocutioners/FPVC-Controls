@@ -40,13 +40,17 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+uint32_t AD_RES_BUFFER[4];
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-
+volatile uint32_t ADC_TEST_INTEGER_0;
+volatile uint32_t ADC_TEST_INTEGER_1;
+volatile uint32_t ADC_TEST_INTEGER_2;
+volatile uint32_t ADC_TEST_INTEGER_3;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -96,6 +100,18 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_TIM2_Init();
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+  //HAL_ADC_Start_DMA(&hadc1, AD_RES_BUFFER, 4);
+
+
+  TIM2->CCR1 = 0xFFFFFFFF;//(AD_RES_BUFFER[0] << 20);
+  TIM2->CCR2 = 0xFFFFFFFF;//(AD_RES_BUFFER[1] << 20);
+  TIM2->CCR3 = 0xFFFFFFFF;//(AD_RES_BUFFER[2] << 20);
+  TIM2->CCR4 = 0xFFFFFFFF;//(AD_RES_BUFFER[3] << 20);
+
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -105,7 +121,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    __NOP();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -190,8 +206,8 @@ static void MX_ADC1_Init(void)
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -250,6 +266,25 @@ static void MX_ADC1_Init(void)
   /* USER CODE END ADC1_Init 2 */
 
 }
+/** 
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+ 
+  TIM2->CCR1 = 0x80000000;//(AD_RES_BUFFER[0] << 20);
+  TIM2->CCR2 = 0x80000000;//(AD_RES_BUFFER[1] << 20);
+  TIM2->CCR3 = 0x80000000;//(AD_RES_BUFFER[2] << 20);
+  TIM2->CCR4 = 0x80000000;//(AD_RES_BUFFER[3] << 20);
+   if (AD_RES_BUFFER[0] != NULL) {
+        ADC_TEST_INTEGER_0 = AD_RES_BUFFER[0] << 20;
+        ADC_TEST_INTEGER_1 = AD_RES_BUFFER[1] << 20;
+        ADC_TEST_INTEGER_2 = AD_RES_BUFFER[2] << 20;
+        ADC_TEST_INTEGER_3 = AD_RES_BUFFER[3] << 20;
+
+    }
+
+}
+*/
 
 /**
   * @brief TIM2 Initialization Function
@@ -263,6 +298,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
 
@@ -275,6 +311,15 @@ static void MX_TIM2_Init(void)
   htim2.Init.Period = 4294967295;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
