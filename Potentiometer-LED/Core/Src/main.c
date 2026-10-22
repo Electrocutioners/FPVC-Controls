@@ -104,14 +104,14 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-  //HAL_ADC_Start_DMA(&hadc1, AD_RES_BUFFER, 4);
+  HAL_ADC_Start_DMA(&hadc1, AD_RES_BUFFER, 4);
 
-
-  TIM2->CCR1 = 0xFFFFFFFF;//(AD_RES_BUFFER[0] << 20);
-  TIM2->CCR2 = 0xFFFFFFFF;//(AD_RES_BUFFER[1] << 20);
-  TIM2->CCR3 = 0xFFFFFFFF;//(AD_RES_BUFFER[2] << 20);
-  TIM2->CCR4 = 0xFFFFFFFF;//(AD_RES_BUFFER[3] << 20);
-
+/*
+  TIM2->CCR1 = 0xFFFFFFFF;//(AD_RES_BUFFER[0]);
+  TIM2->CCR2 = 0xFFFFFFFF;//(AD_RES_BUFFER[1]);
+  TIM2->CCR3 = 0xFFFFFFFF;//(AD_RES_BUFFER[2]);
+  TIM2->CCR4 = 0xFFFFFFFF;//(AD_RES_BUFFER[3]0);
+*/
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -266,25 +266,25 @@ static void MX_ADC1_Init(void)
   /* USER CODE END ADC1_Init 2 */
 
 }
-/** 
+
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
  
-  TIM2->CCR1 = 0x80000000;//(AD_RES_BUFFER[0] << 20);
-  TIM2->CCR2 = 0x80000000;//(AD_RES_BUFFER[1] << 20);
-  TIM2->CCR3 = 0x80000000;//(AD_RES_BUFFER[2] << 20);
-  TIM2->CCR4 = 0x80000000;//(AD_RES_BUFFER[3] << 20);
-   if (AD_RES_BUFFER[0] != NULL) {
-        ADC_TEST_INTEGER_0 = AD_RES_BUFFER[0] << 20;
-        ADC_TEST_INTEGER_1 = AD_RES_BUFFER[1] << 20;
-        ADC_TEST_INTEGER_2 = AD_RES_BUFFER[2] << 20;
-        ADC_TEST_INTEGER_3 = AD_RES_BUFFER[3] << 20;
+  TIM2->CCR1 = (AD_RES_BUFFER[0]);
+  TIM2->CCR2 = (AD_RES_BUFFER[1]);
+  TIM2->CCR3 = (AD_RES_BUFFER[2]);
+  TIM2->CCR4 = (AD_RES_BUFFER[3]);
+   
+  
+  ADC_TEST_INTEGER_0 = AD_RES_BUFFER[0];
+  ADC_TEST_INTEGER_1 = AD_RES_BUFFER[1];
+  ADC_TEST_INTEGER_2 = AD_RES_BUFFER[2];
+  ADC_TEST_INTEGER_3 = AD_RES_BUFFER[3];
 
-    }
 
 }
-*/
+
 
 /**
   * @brief TIM2 Initialization Function
@@ -308,7 +308,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
+  htim2.Init.Period = 4096;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
